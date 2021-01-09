@@ -1,4 +1,6 @@
-# Installation depuis une image Ubuntu vierge
+# Configuration de l'image docker : cloud
+
+## Installation depuis une image Ubuntu vierge
 
 ```sh
 docker rm -f ubuntu && docker run -dit --name=ubuntu ubuntu && docker exec -it ubuntu /bin/bash
@@ -9,14 +11,14 @@ apt update && apt -y install nano net-tools && nano install.sh
 netstat -plntu // 8086/8088/3000/1883 en listen
 ```
 
-# Lancer le container
+## Lancer le container
 ```sh
 // Transformer un container existant en image
 docker ps
 docker commit container_id new_name
 
 // Run image
-docker run -dit -p 1883:1883 -p 3000:3000 --name=new_name new_name
+docker run -dit -p 1883:1883 -p 3000:3000 --name=new_name docker_hub_name
 docker exec -it new_name /bin/bash
 
 // Lancer à partir d un container existant
@@ -37,12 +39,15 @@ rm /var/run/telegraf/telegraf.pid
 service telegraf start
 service influxdb start
 service grafana-server start
+
+// Relancer les services en une seule commande
+service mosquitto start && rm /var/run/telegraf/telegraf.pid && service telegraf start && service influxdb start && service grafana-server start
 ```
 
-# Infos
+## Infos
 
-## influxdb : 
-8086 + 8088
+### influxdb : 
+ports : 8086 + 8088
 ```sh
 influx
 create database telegraf
@@ -60,7 +65,7 @@ select * from mqtt_consumer
 tail -f -n 5 /var/log/influxdb/influxd.log
 ```
 
-## telegraf
+### telegraf
 ```sh
 cd /etc/telegraf/
 mv telegraf.conf telegraf.conf.default
@@ -71,8 +76,8 @@ service telegraf restart
 tail -f -n 5 /var/log/telegraf/telegraf.log
 ```
 
-## grafana
-3000
+### grafana
+port : 3000
 ```sh
 Add data source > influxdb > 
 http://localhost:8086
@@ -81,8 +86,8 @@ telegraf
 root
 ```
 
-## mosquitto
-1883
+### mosquitto
+port : 1883
 ```sh
 mosquitto -p 1883
 mosquitto_pub -h localhost -t content -m hello
